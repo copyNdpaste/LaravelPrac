@@ -111,8 +111,3 @@ class PagesController extends Controller
     }
 }
 ```
-
-# Database and Migrations
-
-
-
