@@ -77,3 +77,9 @@ com_crashlytics_export_strings.xml
 
 # ====== VAGRANT ========================================
 .vagrant
+
+# ====== rest =====================
+.editorconfig
+.env.example
+.gitattributes
+.styleci.yml
