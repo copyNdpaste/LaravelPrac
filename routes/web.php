@@ -11,22 +11,6 @@
 |
 */
 
-Route::get('/', function () {
-    $tasks = [
-        'Go to the store',
-        'Go to the market',
-        'Go to work'
-    ];
-    return view('welcome', [
-        'tasks'=>$tasks,
-        'foo'=>'foo~'
-    ]);
-});
-
-Route::get('/about', function (){
-   return view('about');
-});
-
-Route::get('/contact', function () { // contact라는 주소가 입력되면 contact라는 이름의 view를 랜딩한다.
-   return view('contact');
-});
+Route::get('/', 'PagesController@home');
+Route::get('/about', 'PagesController@about');
+Route::get('/contact', 'PagesController@contact');

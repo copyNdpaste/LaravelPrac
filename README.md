@@ -68,5 +68,47 @@ return view('welcome', [
 ]);
 ```
 
+# Controllers
 
+```bash
+php artisan make:controller PagesController
+```
+
+php artisan을 통해 PagesController라는 controller를 생성한다.
+
+기존에 있던 route를 지우고 다음과 같이 작성한다.
+
+```php
+Route::get('/', 'PageController@home');
+Route::get('/about', 'PageController@about');
+Route::get('/contact', 'PageController@contact');
+```
+
+PagesController에서 route 이름에 맞게 view를 랜딩해준다.
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+class PagesController extends Controller
+{
+    public function home()
+    {
+        return view('welcome', [
+            'foo' => 'bar'
+        ]);
+    }
+
+    public function about()
+    {
+        return view('about');
+    }
+
+    public function contact()
+    {
+        return view('contact');
+    }
+}
+```
 

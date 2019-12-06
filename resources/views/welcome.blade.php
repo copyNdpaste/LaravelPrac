@@ -2,9 +2,4 @@
 
 @section('content')  <!--작성하고자 하는 내용을 쓰고 layout.blade.php의 content에 갖다 붙인다.-->
     <h1>{{ $foo }}</h1>
-    <ul>
-        @foreach($tasks as $task)
-            <li>{{ $task }}</li>
-        @endforeach
-    </ul>
 @endsection
