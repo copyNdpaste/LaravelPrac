@@ -14,3 +14,5 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/projects', 'ProjectController@index');  # /project에 요청이 들어오면 ProjectController의 index 메서드가 실행됨.
