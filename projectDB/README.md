@@ -1,78 +1,335 @@
-<p align="center"><img src="https://res.cloudinary.com/dtfbvvkyp/image/upload/v1566331377/laravel-logolockup-cmyk-red.svg" width="400"></p>
+# Databases and Migrations
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+.env에는 설정 및 개인 정보가 있다
 
-## About Laravel
+DB 관리 툴을 설치하고 username, password 등을 지정한다.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+![image-20191208124105009](/Users/simon/Library/Application Support/typora-user-images/image-20191208124105009.png)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+.env 파일에서도 설정을 해준다.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```bash
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=tutorial
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-## Learning Laravel
+Config 디렉토리의 database.php에는 default 설정이 'DB_CONNECTION'인데 .env에서 지정되어 있지 않은 경우엔 2번째 인자인 'mysql'이 된다.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```bash
+'default' => env('DB_CONNECTION', 'mysql'),
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+database.php에서 밑으로 내려가보면 DBMS마다 설정이 각각 있다. 여기서도 .env에서 지정한 것 아니면 값이 지정되지 않은 경우 임의로 설정한 값을 사용할 수 있다.
 
-## Laravel Sponsors
+비번 관련 오류
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+https://stackoverflow.com/questions/55237257/mysql-validate-password-policy-unknown-system-variable
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[British Software Development](https://www.britishsoftware.co)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- [UserInsights](https://userinsights.com)
-- [Fragrantica](https://www.fragrantica.com)
-- [SOFTonSOFA](https://softonsofa.com/)
-- [User10](https://user10.com)
-- [Soumettre.fr](https://soumettre.fr/)
-- [CodeBrisk](https://codebrisk.com)
-- [1Forge](https://1forge.com)
-- [TECPRESSO](https://tecpresso.co.jp/)
-- [Runtime Converter](http://runtimeconverter.com/)
-- [WebL'Agence](https://weblagence.com/)
-- [Invoice Ninja](https://www.invoiceninja.com)
-- [iMi digital](https://www.imi-digital.de/)
-- [Earthlink](https://www.earthlink.ro/)
-- [Steadfast Collective](https://steadfastcollective.com/)
-- [We Are The Robots Inc.](https://watr.mx/)
-- [Understand.io](https://www.understand.io/)
-- [Abdel Elrafa](https://abdelelrafa.com)
-- [Hyper Host](https://hyper.host)
-- [Appoly](https://www.appoly.co.uk)
-- [OP.GG](https://op.gg)
+mysql 삭제 설치 방법 [https://velog.io/@max9106/mac%EC%97%90-MySQL-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0-4ck17gzjk3](https://velog.io/@max9106/mac에-MySQL-설치하기-4ck17gzjk3)
 
-## Contributing
+caching_sha_password로 비번 설정했다가 DB 툴 상에서 접속이 불가능 해 질 경우 다시 이전 방식으로 비번 설정을 한다.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'your_password_here'; 
+```
 
-## Code of Conduct
+마이그레이트를 해서 migration에 작성된 스키마를 테이블로 만든다.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+php artiasn migrate
+```
 
-## Security Vulnerabilities
+만들어진 테이블을 rollback하고 싶다면 다음 명령을 입력한다.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+php artisan migrate:rollback
+```
 
-## License
+테이블 column명을 바꾸고 싶은 경우 database > migrations > users_table.php로 들어간다.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```php
+$table->string('name');
+```
+
+```php
+$table->string('username');
+```
+
+테이블 구조를 바꾸고 싶은 경우 이렇게 migrations 파일에서 schema를 변경한 뒤 명령어 창에서
+
+```bash
+php artisan migrate:rollback
+php artisan migrate
+```
+
+를 하거나
+
+```bash
+php artisan migrate:fresh
+```
+
+를 해준다.
+
+fresh는 모든 테이블을 drop 하고 새롭게 테이블을 생성한다.
+
+artisan 명령어를 확인하고 싶다면 다음을 입력한다.
+
+```bash
+php artisan
+```
+
+새 파일과 클래스를 생성하고 싶다면
+
+```bash
+php artisan make:*
+```
+
+새로운 마이그레이션 생성하기
+
+```bash
+php artisan make:migration
+```
+
+migrate를 할 때 up() 메서드가 실행되고 rollback할 때는 down() 메서드가 실행된다. down()에 있는 
+
+```php
+Schema::dropIfExists('projects');
+```
+
+를 주석처리 하고
+
+```bash
+php artisan migrate:rollback
+```
+
+을 하면 테이블이 그대로 남아 있게 된다.
+
+```bash
+php artisan migrate:fresh
+```
+
+를 하면 down() 메서드와 상관 없이 모든 테이블을 drop하고 모든 마이그레이션을 실행한다.
+
+# Eloquent, Namespacing, and MVC
+
+```bash
+php artisan migrate
+```
+
+를 하면 라라벨은 모든 마이그레이트 되지 않은 마이그레이션을 실행(up)한다.
+
+Eloquent는 라라벨의 실행 중인 레코드다.
+
+```bash
+php artisan make:model Project
+```
+
+model은 app 디렉토리에서 찾을 수 있다.
+
+```bash
+php artisan tinker
+```
+
+로 터미널 상에서 php를 사용하거나 laravel 프로젝트에 접근할 수 있다. 
+
+app 디렉토리에 있는 Project 모델 객체를 만들어 crud를 할 수도 있다.
+
+```bash
+$project = App\Project;
+$project->title = 'My First Project';
+$project->description = 'Lorem ipsum';
+$proejct->save();
+```
+
+read
+
+```php
+App\Project::latest()->first();  # 최신 레코드
+App\Project::first()->title;  # 첫번째 레코드의 title
+App\Project::all();  # 테이블의 모든 레코드
+App\Project::all()[0]; # 첫번째 레코드
+App\Project::all()->map->title;  # 모든 레코드의 title
+App\Project::all()->map->title[0]; # 모든 레코드 중 첫번째 title
+```
+
+model에 접근해서 메서드를 사용한다.
+
+컨트롤러를 생성한다.
+
+```bash
+php artisan make:controller ProjectController
+```
+
+web.php에 라우터를 작성한다.
+
+```php
+Route::get('/projects', 'ProjectController@index');  # /project에 요청이 들어오면 ProjectController의 index 메서드가 실행됨.
+```
+
+ProjectController.php에 다음 index 메서드를 작성한다.
+
+```php
+class ProjectController extends Controller
+{
+    public function index()
+    {
+        return view('projects.index');  # projects 디렉토리의 index 파일을 랜딩한다.
+    }
+}
+```
+
+index.blade.php는 resources > views > projects에 작성한다.
+
+index.blade.php에 html을 작성하고 서버를 실행한다.
+
+```bash
+php artisan serve
+```
+
+127.0.0.1:8000/projects에 접속해서 페이지가 잘 뜨는지 확인한다.
+
+routes는 요청된 URI에 반응하고 controller를 로딩한다. controller는 view를 리턴한다. view는 유저에게 제공된다.
+
+PSR-4
+
+namespace를 활용해서 이름 충돌이 나지 않게 현재 파일이 속한 디렉토리 경로를 명시해준다.
+
+controller가 model에서 data를 가져와서 가공, 처리하기 위해 다음을 작성한다.
+
+```php
+public function index()
+{
+    $projects = \App\Project::all();  # root 디렉토리에서 시작한다고 명시하지 않으면 namespace 때문에 App\Http\Controllers\App\Project가 돼버린다.
+
+    return $projects;  # json 형식
+}
+```
+
+브라우저 상에서 잘 정돈된 json 형태를 보고 싶다면 chrome 확장 프로그램인 json formatter를 설치한다.
+
+json 형식의 값을 view에 보낸다.
+
+```php
+public function index()
+    {
+        $projects = \App\Project::all();  # root 디렉토리에서 시작한다고 명시하지 않으면 namespace 때문에 App\Http\Controllers\App\Project가 돼버린다.
+
+        return view('projects.index', compact('projects'));  # projects 디렉토리의 index 파일을 랜딩한다.
+    }
+```
+
+Index.blade.php에선 json 데이터를 출력해준다.
+
+```php+HTML
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Document</title>
+</head>
+<body>
+    <h1>projects</h1>
+    @foreach ($projects as $project)
+        <li>{{ $project->title }}</li>
+    @endforeach
+</body>
+</html>
+```
+
+`라라벨의 기본 구조`
+
+>routes는 요청된 URI에 맞는 controller를 호출한다.
+>
+>controller는 데이터베이스에 query를 보내 CRUD를 하고, data를 view에 전달한다.
+>
+>view는 전달 받은 data를 출력한다.
+
+# Directory Structure Review
+
+__Files__
+
+`.editorconfig`
+
+> editor에게 어떤 format을 원하는 지 알려준다.
+
+`.env`
+
+> Local 또는 product 환경을 설정할 수 있다.
+>
+> DB나 PUSHER, Redis, Mail 설정을 할 수 있다.
+
+`artisan`
+
+> 터미널에서 php artisan 명령을 칠 경우 artisan 파일이 실행된다.
+
+`composer.json`
+
+> 의존성 설정
+
+`composer.lock`
+
+> project를 공유하는 사용자가 의존성 설정을 일치시키기 위한 파일
+
+`package.json`
+
+> 프론트엔드 설정
+
+`webpack.mix.js`
+
+> 라라벨 앱에서 assets을 컴파일하고 최적화하기 위한 도구
+
+__Directories__
+
+`vendor`
+
+> composer dependency가 설치되는 디렉토리.
+
+`tests`
+
+> testcase를 작성하는 디렉토리
+
+`storage`
+
+> log, cache, session, 컴파일된 view 등 저장
+
+`routes`
+
+> web.php에선 route를 정할 수 있다.
+>
+> console.php에선 artisan 명령어를 추가할 수 있다.
+
+`resources`
+
+> js, sass, view 등이 webpack.mix.js에 의해 컴파일되면 resources 디렉토리에 저장된다.
+
+`public`
+
+> js, css
+
+`databaase`
+
+> migrations: table schema 지정
+>
+> factories:  지정된 조건에 맞는 table의 test data 생성. 자동
+>
+> seeds: test data 생성. 수동
+
+`config`
+
+> 앱, 인증, 캐시, 데이터베이스 등 다양한 환경 설정
+
+`bootstrap`
+
+> 라라벨 프로젝트가 실행될 때 쓰임, UI를 위한 css library와 관계 없음
+
+`app`
+
+> 모델, 컨트롤러, 복잡한 artisan 명령어
+>
+> 서버로 들어오는 모든 요청에 대해 Kernel.php의 middleware를 확인한다.
+>
+> service providers는 라라벨에서 중요한 개념이다. 라라벨의 모든 코어 서비스는 서비스 프로바이더를 통해 부트스트래핑(이벤트 리스너, 미들웨어, 라우트 등록)된다.
+
