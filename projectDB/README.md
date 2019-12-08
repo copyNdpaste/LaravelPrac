@@ -4,7 +4,7 @@
 
 DB 관리 툴을 설치하고 username, password 등을 지정한다.
 
-![image-20191208124105009](/Users/simon/Library/Application Support/typora-user-images/image-20191208124105009.png)
+<img width="897" alt="image-20191208124105009" src="https://user-images.githubusercontent.com/18900976/70387368-e2b6ec00-19e7-11ea-9451-14486a216803.png">
 
 .env 파일에서도 설정을 해준다.
 
