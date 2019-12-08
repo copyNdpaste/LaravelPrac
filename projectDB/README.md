@@ -333,3 +333,76 @@ __Directories__
 >
 > service providers는 라라벨에서 중요한 개념이다. 라라벨의 모든 코어 서비스는 서비스 프로바이더를 통해 부트스트래핑(이벤트 리스너, 미들웨어, 라우트 등록)된다.
 
+# Form Handling and CSRF Protection
+
+web.php에 create 페이지로 이동하는 route와 글을 생성하는 post route 추가
+
+```php
+Route::post('/projects', 'ProjectController@store');
+Route::get('/projects/create', 'ProjectController@create');
+```
+
+ProjectsController.php에 메서드 추가
+
+```php
+public function create()
+{
+  return view('projects.create');
+}
+
+public function store()
+{
+  return request()->all();
+}
+```
+
+create.blade.php에 html 추가
+
+```php+HTML
+<form method="POST" action="/projects">
+  <input type="text" name="title" placeholder="Project Title">
+  <div>
+    <textarea name="description" placeholder="Project description"></textarea>
+  </div>
+  <div>
+    <button type="submit">Create Project</button>
+  </div>
+</form>
+```
+
+Form 태그의 post 메서드를 사용할 때 csrf 토큰이 없으면 419 에러가 난다. csrf_field()를 추가해준다.
+
+```php+HTML
+<form method="POST" action="/projects">
+  {{ csrf_field() }}
+  <input type="text" name="title" placeholder="Project Title">
+  <div>
+    <textarea name="description" placeholder="Project description"></textarea>
+  </div>
+  <div>
+    <button type="submit">Create Project</button>
+  </div>
+</form>
+```
+
+요청으로 온 특정 값에 접근하고 싶을 때는 request('name')
+
+form에서 요청이 온 것을 저장하려면
+
+```php
+public function store()
+    {
+        $project = new Project();
+        $project->title = request('title');
+        $project->description = request('description');
+        $project->save();
+        return redirect('/projects');
+    }
+```
+
+##### csrf token
+
+> kernel.php의 middlewaregroup의 VerifyCsrfToken이 csrf token이 유효한지 확인할 때 사용된다.
+
+서버에 위변조된 데이터가 오지 못하도록 인증된 token을 갖고 있는 경우에만 서버와 소통할 수 있다.
+
