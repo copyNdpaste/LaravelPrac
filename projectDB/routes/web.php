@@ -16,3 +16,5 @@ Route::get('/', function () {
 });
 
 Route::get('/projects', 'ProjectController@index');  # /project에 요청이 들어오면 ProjectController의 index 메서드가 실행됨.
+Route::post('/projects', 'ProjectController@store');
+Route::get('/projects/create', 'ProjectController@create');
