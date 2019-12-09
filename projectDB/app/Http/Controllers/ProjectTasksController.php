@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Task;
+use App\Project;
 
 class ProjectTasksController extends Controller
 {
@@ -12,6 +13,17 @@ class ProjectTasksController extends Controller
         $task->update([
            'completed' => request()->has('completed')
         ]);
+        return back();
+    }
+
+    public function store(Project $project)
+    {
+        $attributes = request()->validate([
+            'project' => ['required'],
+            'description' => ['required']
+        ]);
+        $project->addTask($attributes);
+
         return back();
     }
 }

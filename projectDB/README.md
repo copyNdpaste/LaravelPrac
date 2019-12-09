@@ -784,13 +784,25 @@ show.blade.php
     <p>
         <a href="/projects/{{ $project->id }}/edit">Edit</a>
     </p>
+
+    <form method="POST" action="/tasks" class="box">
+        @csrf
+        <div class="field">
+            <label class="label" for="description">New Task</label>
+            <input type="hidden" name="project" value="{{ $project->id }}">
+            <input type="text" class="input" name="description" placeholder="">
+        </div>
+        <button type="submit">Create Task</button>
+    </form>
 @endsection
+
 ```
 
 web.php
 
 ```php
 Route::patch('/tasks/{task}', 'ProjectTasksController@update');
+Route::post('/tasks', 'ProjectTasksController@store');
 ```
 
 ProjectTasksController.php
@@ -805,6 +817,17 @@ class ProjectTasksController extends Controller
         ]);
         return back();
     }
+
+    public function store(Project $project)
+    {
+        $attributes = request()->validate([
+            'project' => ['required'],
+            'description' => ['required']
+        ]);
+        $project->addTask($attributes);
+
+        return back();
+    }
 }
 ```
 
@@ -816,5 +839,31 @@ layout.blade.php
     text-decoration: line-through;
   }
 </style>
+```
+
+Project.php
+
+```php
+public function addTask($idArr)
+{
+  Task::create([
+    'project_id' => $idArr['project'],
+    'description' => $idArr['description']
+  ]);
+}
+```
+
+Task.php
+
+```php
+class Task extends Model
+{
+    protected $guarded = [];
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
+}
 ```
 

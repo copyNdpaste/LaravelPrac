@@ -22,4 +22,14 @@
     <p>
         <a href="/projects/{{ $project->id }}/edit">Edit</a>
     </p>
+
+    <form method="POST" action="/tasks" class="box">
+        @csrf
+        <div class="field">
+            <label class="label" for="description">New Task</label>
+            <input type="hidden" name="project" value="{{ $project->id }}">
+            <input type="text" class="input" name="description" placeholder="">
+        </div>
+        <button type="submit">Create Task</button>
+    </form>
 @endsection
