@@ -689,7 +689,9 @@ public function store()
 }
 ```
 
-유효성 검사 실패했을 때 redirect되면서 지금까지 작성한 글이 초기화된다. 이를 방지하려면 value="{{ old('title) }}을 넣어준다.
+유효성 검사 실패했을 때 redirect되면서 지금까지 작성한 글이 초기화된다. 이를 방지하려면 value="{{ old('title') }}"을 넣어준다.
 
 [validation rules](https://laravel.com/docs/5.8/validation#available-validation-rules)
+
+# Your First Eloquent Relationships
 
