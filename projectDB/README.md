@@ -695,3 +695,63 @@ public function store()
 
 # Your First Eloquent Relationships
 
+Project 모델과 join하기 위한 Task 모델과 factory를 만든다.
+
+```bash
+php artisan make:model Task -m -f
+```
+
+Task.php에서 migration을 수정한다.
+
+```php
+public function up()
+{
+    Schema::create('tasks', function (Blueprint $table) {
+      $table->bigIncrements('id');
+      $table->unsignedInteger('project_id');
+      $table->string('description');
+      $table->boolean('completed')->default(false);
+      $table->timestamps();
+    });
+}
+```
+
+migrate한다.
+
+```bash
+php artisan migrate
+```
+
+Project.php에서 Task를 참조한다.
+
+```php
+public function tasks()
+{
+  return $this->hasMany(Task::class);
+}
+```
+
+```bash
+php artisan tinker
+App\Project::first()->tasks;  // 첫번째 project와 관계 있는 task 출력
+App\Task::first()->project;  // 첫번째 task와 관계있는 project 출력
+```
+
+[relationship 문서](https://laravel.kr/docs/5.1/eloquent-relationships)
+
+* 1:1
+
+> $this->hasOne()
+>
+> $this->belongsTo()
+
+* 1:N
+
+> $this->hasMany()  // 1쪽
+>
+> $this->belongsTo()  // N쪽
+
+* N:M
+
+> $this->belongsToMany()
+
