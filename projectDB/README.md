@@ -755,7 +755,7 @@ App\Task::first()->project;  // 첫번째 task와 관계있는 project 출력
 
 > $this->belongsToMany()
 
-# Form Action Considerations
+# Create New Project Tasks
 
 show.blade.php
 
@@ -866,4 +866,6 @@ class Task extends Model
     }
 }
 ```
+
+# Better Encapsulation
 
