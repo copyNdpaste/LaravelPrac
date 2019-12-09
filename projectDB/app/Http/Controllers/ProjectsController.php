@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Project;
 
-class ProjectController extends Controller
+class ProjectsController extends Controller
 {
     public function index()
     {
@@ -18,6 +18,28 @@ class ProjectController extends Controller
     public function create()
     {
         return view('projects.create');
+    }
+
+    public function edit($id)  # example.com/projects/1/edit
+    {
+        $project = Project::findOrFail($id);
+        return view('projects.edit', compact('project'));
+    }
+
+    public function update($id)
+    {
+        $project = Project::findOrFail($id);
+        $project->title = request('title');
+        $project->description = request('description');
+        $project->save();
+        return redirect('/projects');
+    }
+
+    public function destroy($id)
+    {
+        $project = Project::findOrFail($id);
+        $project->delete();
+        return redirect('/projects');
     }
 
     public function store()
