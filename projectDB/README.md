@@ -755,3 +755,66 @@ App\Task::first()->project;  // 첫번째 task와 관계있는 project 출력
 
 > $this->belongsToMany()
 
+# Form Action Considerations
+
+show.blade.php
+
+```php+HTML
+@extends('layout')
+
+@section('content')
+    <h1 class="title">{{ $project->title }}</h1>
+    <div class="content">{{ $project->description }}</div>
+    @if ($project->tasks->count())
+        <div>
+            @foreach ($project->tasks as $task)
+                <div>
+                    <form method="POST" action="/tasks/{{ $task->id }}">
+                        @csrf
+                        @method('PATCH')
+                        <label class="checkbox {{ $task->completed ? 'is-complete' : '' }}" for="completed">
+                            <input type="checkbox" name="completed" onchange="this.form.submit()" {{ $task->completed ? 'checked' : '' }}>
+                            {{ $task->description }}
+                        </label>
+                    </form>
+                </div>
+            @endforeach
+        </div>
+    @endif
+    <p>
+        <a href="/projects/{{ $project->id }}/edit">Edit</a>
+    </p>
+@endsection
+```
+
+web.php
+
+```php
+Route::patch('/tasks/{task}', 'ProjectTasksController@update');
+```
+
+ProjectTasksController.php
+
+```php
+class ProjectTasksController extends Controller
+{
+    public function update(Task $task)
+    {
+        $task->update([
+           'completed' => request()->has('completed')
+        ]);
+        return back();
+    }
+}
+```
+
+layout.blade.php
+
+```php+HTML
+<style>
+  .is-complete {
+    text-decoration: line-through;
+  }
+</style>
+```
+

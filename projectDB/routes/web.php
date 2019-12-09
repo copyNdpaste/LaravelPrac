@@ -15,3 +15,5 @@ Route::get('/', function () {
 });
 
 Route::resource('projects', 'ProjectsController');  # route shortcut
+
+Route::patch('/tasks/{task}', 'ProjectTasksController@update');
