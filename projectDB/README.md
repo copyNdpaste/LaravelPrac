@@ -587,3 +587,87 @@ public function destroy($id)
 find() 대신 findOrFail()
 ```
 
+# Cleaner Controllers and Mass Assignment Concerns
+
+index에서 title을 클릭할 수 있게 한다.
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Document</title>
+</head>
+<body>
+    <h1>projects</h1>
+    @foreach ($projects as $project)
+        <li>
+            <a href="/projects/{{ $project->id }}">
+                {{ $project->title }}
+            </a>
+        </li>
+    @endforeach
+</body>
+</html>
+```
+
+Show 메서드
+
+```php
+public function show($id)
+{
+  $project = Project::findOrFail($id);
+  return view('projects.show', compact('project'));
+}
+```
+
+type hint 적용
+
+```php
+public function show(Project $project)  # type hint
+{
+    return view('projects.show', compact('project'));
+}
+```
+
+데이터 저장 시 store 메서드에서 create 메서드 활용
+
+```php
+public function store()
+{
+  Project::create([
+    'title' => request('title'),  // "add title to fillable property to allow mass assignment on App\Project" in Project Model
+    'description' => request('description')
+  ]);
+  return redirect('/projects');
+}
+```
+
+그냥 사용하면 mass assignment 이슈로 인해 에러가 남. Project.php의 Project 클래스의 fillable 변수에 request에서 값을 받아 저장할 
+
+> mass assignment vulnerability는 request를 통해 예상치 못한 HTTP 인자가 전달되는 것이다. 원치 않게 DB column을 변경해버릴 수 있다. mass assign을 하고 싶은 모델에 $fillable 속성을 사용해야 한다. [출처](https://laravel.com/docs/5.7/eloquent#mass-assignment) 데이터를 서버에 전송하게 될 때 원치 않는 값까지 전달되는 것을 방지한다.
+
+```php
+class Project extends Model
+{
+    protected $fillable = [
+        'title', 'description',
+    ];
+}
+```
+
+$fillable(white list)과 반대되는 건 $guarded(black list)이다. 아래와 같이 작성하면 모든 인자를 허용하는 것이다.
+
+```php
+$guarded = [];
+```
+
+Store 메서드를 더욱 간단하게.
+
+```php
+public function store()
+{
+  Project::create(request(['title', 'description']));
+  return redirect('/projects');
+}
+```
+
