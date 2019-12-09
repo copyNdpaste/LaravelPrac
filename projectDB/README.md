@@ -161,19 +161,19 @@ model에 접근해서 메서드를 사용한다.
 컨트롤러를 생성한다.
 
 ```bash
-php artisan make:controller ProjectController
+php artisan make:controller ProjectsController
 ```
 
 web.php에 라우터를 작성한다.
 
 ```php
-Route::get('/projects', 'ProjectController@index');  # /project에 요청이 들어오면 ProjectController의 index 메서드가 실행됨.
+Route::get('/projects', 'ProjectsController@index');  # /project에 요청이 들어오면 ProjectsController의 index 메서드가 실행됨.
 ```
 
-ProjectController.php에 다음 index 메서드를 작성한다.
+ProjectsController.php에 다음 index 메서드를 작성한다.
 
 ```php
-class ProjectController extends Controller
+class ProjectsController extends Controller
 {
     public function index()
     {
@@ -338,8 +338,8 @@ __Directories__
 web.php에 create 페이지로 이동하는 route와 글을 생성하는 post route 추가
 
 ```php
-Route::post('/projects', 'ProjectController@store');
-Route::get('/projects/create', 'ProjectController@create');
+Route::post('/projects', 'ProjectsController@store');
+Route::get('/projects/create', 'ProjectsController@create');
 ```
 
 ProjectsController.php에 메서드 추가
@@ -405,4 +405,185 @@ public function store()
 > kernel.php의 middlewaregroup의 VerifyCsrfToken이 csrf token이 유효한지 확인할 때 사용된다.
 
 서버에 위변조된 데이터가 오지 못하도록 인증된 token을 갖고 있는 경우에만 서버와 소통할 수 있다.
+
+# Routing Conventions Worth Following
+
+REST : Representational State Transfer
+
+web.php에 다음과 같이 routes를 작성한다.
+
+```php
+<?php
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+/*
+    GET /projects (index)
+    GET /projects/create (create)
+    GET /projects/1 (show)
+    POST /projects (store)
+    GET /projects/1/edit (edit)
+    PATCH /project/1 (update)
+    DELETE /projects/1 (destroy)
+*/
+
+Route::get('/projects', 'ProjectsController@index');  # /project에 요청이 들어오면 ProjectsController의 index 메서드가 실행됨.
+Route::get('/projects/create', 'ProjectsController@create');
+Route::get('/projects/{project}', 'ProjectsController@show');
+Route::post('/projects', 'ProjectsController@store');
+Route::get('/projects/{project}/edit', 'ProjectsController@edit');
+Route::patch('/projects/{project}', 'ProjectsController@update');
+Route::delete('/projects/{project}', 'ProjectsController@destroy');
+
+```
+
+artisan을 활용해 등록된 route list를 확인할 수 있다.
+
+```bash
+php artisan route:list
+```
+
+controller 생성 시 필요한 함수를 만들어 주는 명령어.
+
+```bash
+php artisan make:controller PostsController -r
+```
+
+다음 명령어를 입력하면 Post 모델이 없는 경우 생성하겠냐고 물어본다. yes를 입력하면 controller와 model이 생성되고 controller 안에는 model이 import 된다.
+
+```bash
+php artisan make:controller PostsController -r -m Post
+```
+
+타입 힌팅을 이용해서 데이터베이스에 있는 모델 전체에 접근할 수 있다. 모델을 직접 쓰고 query문을 작성하지 않아도 된다.
+
+# Faking PATCH and DELETE Requests
+
+Views 디렉토리에 layout.blade.php를 생성한다
+
+```php+HTML
+<!doctype html>
+<html lang="en">
+<head>
+    <title></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.css">
+</head>
+<body>
+    <div class="container">
+        @yield('content')
+    </div>
+</body>
+</html>
+
+```
+
+projects 디렉토리에 edit.blade.php를 생성한다.
+
+```php+HTML
+@extends('layout')
+
+@section('content')
+    <h1>Edit Project</h1>
+    {{ $project }}
+@endsection
+
+```
+
+Http > Controllers 디렉토리의 ProjectsController.php에 edit 메서드를 작성한다.
+
+```php
+public function edit($id)  # example.com/projects/1/edit
+    {
+        return $id;
+        $project = Project::find($id);
+        return view('projects.edit', compact('project'));
+    }
+```
+
+Edit.blade.php
+
+```php+HTML
+@extends('layout')
+
+@section('content')
+    <h1>Edit Project</h1>
+
+    <form method="POST" action="/projects/{{ $project->id }}">
+        {{ csrf_field() }}
+        {{ method_field('PATCH') }}
+        <div class="field">
+            <label class="label" for="title">Title</label>
+            <input type="text"  class="input" name="title" placeholder="Title" value="{{ $project->title }}">
+        </div>
+        <div class="field">
+            <label class="label" for="description">Description</label>
+            <textarea name="description" class="textarea">{{ $project->description }}</textarea>
+        </div>
+        <button type="submit" class="button is-link">Update Project</button>
+    </form>
+@endsection
+
+```
+
+PATCH method는 없기 때문에 method를 POST로 작성하고 실제로 뭘 의미하는지 알려주기 위한 method_field('PATCH')를 이용한다. 이 메서드는 hidden input을 생성한다.
+
+```html
+<input type="hidden" name="_method" value="PATCH">
+```
+
+ProjectsController.php
+
+```php
+public function update($id)
+{
+  $project = Project::find($id);
+  $project->title = request('title');
+  $project->description = request('description');
+  $project->save();
+  return redirect('/projects');
+}
+```
+
+# Form Delete Requests
+
+edit.blade.php에 delete를 위한 form을 추가한다
+
+```php+HTML
+<form method="POST" action="/projects/{{ $project->id }}">
+  {{ method_field('DELETE') }}
+  {{ csrf_field() }}
+  <button type="submit" class="button">Delete Project</button>
+</form>
+```
+
+method_field에 'DELETE'를 적어줬기 때문에 action에 적한 URI를 따라가면 destroy 메서드가 실행된다.
+
+```php
+public function destroy($id)
+{
+  $project = Project::find($id);
+  $project->delete();
+  return redirect('/projects');
+}
+```
+
+```php
+{{ method_field('DELETE') }}
+{{ csrf_field() }}
+```
+
+위, 아래 코드는 같은 의미.
+
+```php
+@method('DELETE')
+@csrf
+```
+
+존재하지 않는 id에 접근하는 경우 404 에러 페이지 처리
+
+```php
+find() 대신 findOrFail()
+```
 
