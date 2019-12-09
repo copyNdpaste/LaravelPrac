@@ -671,3 +671,25 @@ public function store()
 }
 ```
 
+# Two Layers of Validation
+
+frontend와 backend 모두에서 유효성 검사를 해야 한다.
+
+controller의 store 메서드에서 유효성 검사를 한다. 유효성 검사를 해서 실패하면 이전 페이지로 redirect 된다. Min:3은 최소 글자 수
+
+```php
+public function store()
+{
+  request()->validate([
+    'title' => ['required', min:3, max:255],
+    'description' => 'required'
+  ]);
+  Project::create(request(['title', 'description']));
+  return redirect('/projects');
+}
+```
+
+유효성 검사 실패했을 때 redirect되면서 지금까지 작성한 글이 초기화된다. 이를 방지하려면 value="{{ old('title) }}을 넣어준다.
+
+[validation rules](https://laravel.com/docs/5.8/validation#available-validation-rules)
+
