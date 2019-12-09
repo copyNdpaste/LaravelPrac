@@ -15,39 +15,36 @@ class ProjectsController extends Controller
         return view('projects.index', compact('projects'));  # projects 디렉토리의 index 파일을 랜딩한다.
     }
 
+    public function show(Project $project)  # type hint
+    {
+        return view('projects.show', compact('project'));
+    }
+
     public function create()
     {
         return view('projects.create');
     }
 
-    public function edit($id)  # example.com/projects/1/edit
+    public function edit(Project $project)  # example.com/projects/1/edit
     {
-        $project = Project::findOrFail($id);
         return view('projects.edit', compact('project'));
     }
 
-    public function update($id)
+    public function update(Project $project)
     {
-        $project = Project::findOrFail($id);
-        $project->title = request('title');
-        $project->description = request('description');
-        $project->save();
+        $project->update(request(['title', 'description']));
         return redirect('/projects');
     }
 
-    public function destroy($id)
+    public function destroy(Project $project)
     {
-        $project = Project::findOrFail($id);
         $project->delete();
         return redirect('/projects');
     }
 
     public function store()
     {
-        $project = new Project();
-        $project->title = request('title');
-        $project->description = request('description');
-        $project->save();
+        Project::create(request(['title', 'description']));
         return redirect('/projects');
     }
 }

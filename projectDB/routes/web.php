@@ -1,9 +1,5 @@
 <?php
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
 /*
     GET /projects (index)
     GET /projects/create (create)
@@ -14,11 +10,8 @@ Route::get('/', function () {
     DELETE /projects/1 (destroy)
 */
 
+Route::get('/', function () {
+    return view('welcome');
+});
+
 Route::resource('projects', 'ProjectsController');  # route shortcut
-//Route::get('/projects', 'ProjectsController@index');  # project에 요청이 들어오면 ProjectsController의 index 메서드가 실행됨.
-//Route::get('/projects/create', 'ProjectsController@create');
-//Route::get('/projects/{project}', 'ProjectsController@show');
-//Route::post('/projects', 'ProjectsController@store');
-//Route::get('/projects/{project}/edit', 'ProjectsController@edit');
-//Route::patch('/projects/{project}', 'ProjectsController@update');
-//Route::delete('/projects/{project}', 'ProjectsController@destroy');
