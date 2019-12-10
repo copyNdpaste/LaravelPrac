@@ -869,3 +869,68 @@ class Task extends Model
 
 # Better Encapsulation
 
+Task update는 ProjectTasksController.php에서 요청하되 실제 처리는 Task.php에서 한다. ProjectTasksControllers는 Task 모델의 complete라는 메서드에 인수만 넣어주면 된다. complete()의 내부 내용을 알 필요가 없다.
+
+ProjectTasksController.php
+
+```php
+public function update(Task $task)
+{
+  $task->complete(request()->has('completed'));
+
+  return back();
+}
+```
+
+Task.php에선 complete 메서드를 정의하는데, task가 완료, 미완료를 인자로 판단하고 그에 맞게 현재 task에 대한 complete column을 update한다.
+
+Task.php
+
+```php
+public function complete($completed = true)
+{
+  $this->update(['completed' => $completed]);
+}
+```
+
+[Request에 어떤 값이 존재하는 지 확인하는 has()]([https://laravel.kr/docs/5.7/requests#%EC%9E%85%EB%A0%A5%EA%B0%92%EC%9D%B4%20%EC%A1%B4%EC%9E%AC%ED%95%98%EB%8A%94%EC%A7%80%20%ED%99%95%EC%9D%B8%ED%95%98%EA%B8%B0](https://laravel.kr/docs/5.7/requests#입력값이 존재하는지 확인하기))
+
+encapsulation을 한 덕에 controller는 가독성이 좋아지고 eloquent model은 동작을 더 갖게 되었다. 클래스에선 어떤 일을 할 수 있는지 없는지 쉽게 알 수 있다.
+
+Task Eloquent에서 complete, incomplete 나누기
+
+Task.php
+
+```php
+public function complete($completed = true)
+{
+  $this->update(['completed' => $completed]);
+}
+
+public function incomplete()
+{
+  $this->complete(false);
+}
+```
+
+ProjectTasksController.php
+
+```php
+public function update(Task $task)
+{
+  $isComplete = request()->has('completed');
+
+  //        if($isComplete){
+  //            $task->complete();
+  //        }else{
+  //            $task->incomplete();
+  //        }
+
+  $isComplete ? $task->complete() : $task->incomplete();
+
+  // $isComplete = request()->has('completed') ? 'complete' : 'incomplete';
+  // $isComplete(); // 동적 메소드
+  return back();
+}
+```
+
