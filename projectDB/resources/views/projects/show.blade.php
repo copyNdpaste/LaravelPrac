@@ -7,9 +7,10 @@
         <div>
             @foreach ($project->tasks as $task)
                 <div>
-                    <form method="POST" action="/tasks/{{ $task->id }}">
+                    <form method="POST" action="/completed-tasks/{{ $task->id }}">
                         @csrf
-                        @method('PATCH')
+                        @if ($task->completed) @method('DELETE')
+                        @endif
                         <label class="checkbox {{ $task->completed ? 'is-complete' : '' }}" for="completed">
                             <input type="checkbox" name="completed" onchange="this.form.submit()" {{ $task->completed ? 'checked' : '' }}>
                             {{ $task->description }}

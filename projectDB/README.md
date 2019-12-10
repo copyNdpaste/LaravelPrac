@@ -934,3 +934,55 @@ public function update(Task $task)
 }
 ```
 
+# When in Doubt
+
+ProjectTasksController.php에 작성했던 task->complete() 호출하는 부분을 controller로 분리시킨다.
+
+controller 생성
+
+```bash
+php artisan make:controller CompletedTasksController
+```
+
+show.blade.php에서 form 변경
+
+```php+HTML
+<form method="POST" action="/completed-tasks/{{ $task->id }}">
+  @csrf
+  @if ($task->completed) @method('DELETE')
+  @endif
+  <label class="checkbox {{ $task->completed ? 'is-complete' : '' }}" for="completed">
+    <input type="checkbox" name="completed" onchange="this.form.submit()" {{ $task->completed ? 'checked' : '' }}>
+    {{ $task->description }}
+  </label>
+</form>
+```
+
+web.php
+
+```php
+// Route::patch('/tasks/{task}', 'ProjectTasksController@update');
+Route::post('/completed-tasks/{task}', 'CompletedTasksController@store');
+Route::delete('/completed-tasks/{task}', 'CompletedTasksController@destroy');
+```
+
+CompletedTasksController
+
+```php
+class CompletedTasksController extends Controller
+{
+    public function store(Task $task){
+        $task->complete();
+
+        return back();
+    }
+
+    public function destroy(Task $task)
+    {
+        $task->incomplete();
+
+        return back();
+    }
+}
+```
+

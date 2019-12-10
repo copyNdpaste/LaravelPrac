@@ -16,5 +16,7 @@ Route::get('/', function () {
 
 Route::resource('projects', 'ProjectsController');  # route shortcut
 
-Route::patch('/tasks/{task}', 'ProjectTasksController@update');
 Route::post('/tasks', 'ProjectTasksController@store');
+
+Route::post('/completed-tasks/{task}', 'CompletedTasksController@store');
+Route::delete('/completed-tasks/{task}', 'CompletedTasksController@destroy');
